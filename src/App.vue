@@ -87,9 +87,9 @@
     </ul>
     <!-- current weather -->
     <p class="fs-3 text-capitalize fw-bold">current</p>
-    <div v-if="currentconditions!=null" class="card m-1" style="width: 13rem;">
+    <div v-if="currentconditions!=null" class="card m-1" :class="{'bg-dark':!currentconditions.data[0].IsDayTime}" style="width: 13rem;">
       <img :src="`src/assets/icons/${currentconditions.data[0].WeatherIcon}-s.png`" class="card-img-top mt-1" alt="...">
-      <div class="card-body">
+      <div class="card-body" :class="{'text-white':!currentconditions.data[0].IsDayTime}">
         <h5 class="card-title">{{ currentconditions.data[0].WeatherText }}</h5>
         <p class="fs-4">{{ currentconditions.data[0].Temperature.Metric.Value + " "+  currentconditions.data[0].Temperature.Metric.Unit}}</p>
         <a :href="currentconditions.data[0].Link" class="btn btn-primary text-capitalize">view website</a>
@@ -98,10 +98,10 @@
     <!-- 12 hours forcast weather -->
     <p class="fs-3 text-capitalize fw-bold">hourly</p>
     <div class="w-100 overflow-scroll" style="white-space: nowrap;" v-if="forecastsHourly!=null">
-      <div class="card m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsHourly" :key="index">
-        <div class="card-header">{{ formateTime(forecast.DateTime) }}</div>
+      <div class="card m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsHourly" :key="index" :class="{'bg-dark':!forecast.IsDaylight}">
+        <div class="card-header" :class="{'text-white':!forecast.IsDaylight}">{{ formateTime(forecast.DateTime) }}</div>
         <img :src="`src/assets/icons/${forecast.WeatherIcon}-s.png`" class="card-img-top mt-1" alt="...">
-        <div class="card-body">
+        <div class="card-body" :class="{'text-white':!forecast.IsDaylight}">
           <h5 class="card-title">{{forecast.IconPhrase}}</h5>
           <p class="fs-4">{{ forecast.Temperature.Value + " " + forecast.Temperature.Unit}}</p>
         </div>
