@@ -6,6 +6,9 @@
         ipAdress:null,
         currentconditions:null,
         forecastsHourly:null,
+        forecastsDaily:null,
+        dayIsActive:true,
+        nightIsActive:false,
       }
     },
     beforeMount(){
@@ -19,15 +22,18 @@
       // find user location
       axios.get('http://dataservice.accuweather.com/locations/v1/cities/ipaddress?q='+this.ipAdress+'&apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
           .then(response=>{
-                axios.get('http://dataservice.accuweather.com/currentconditions/v1/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
-                    .then(response=>{
-                      this.currentconditions=response
-                    })
-                axios.get('http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
-                    .then(response=>{
-                      this.forecastsHourly=response.data
-                      console.log(response)
-                    })    
+                    axios.get('http://dataservice.accuweather.com/currentconditions/v1/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+                        .then(response=>{
+                          this.currentconditions=response
+                        })
+                    axios.get('http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+                        .then(response=>{
+                          this.forecastsHourly=response.data
+                        })    
+                    axios.get('http://dataservice.accuweather.com/forecasts/v1/daily/5day/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+                        .then(response=>{
+                          this.forecastsDaily=response.data.DailyForecasts
+                        })       
           })
     },
     methods:{
@@ -35,6 +41,16 @@
         var date=new Date(utcString);
         return date.toLocaleTimeString()
       },
+
+      formateDate(utcString){
+        var date=new Date(utcString);
+        return date.toDateString()
+      },
+
+      dayNight(){
+        this.dayIsActive = !this.dayIsActive
+        this.nightIsActive = !this.nightIsActive
+      }
       
       }
     }
@@ -53,7 +69,7 @@
   <div class="container">
     <!-- current weather -->
     <p class="fs-3 text-capitalize fw-bold">current</p>
-    <div v-if="currentconditions!=null" class="card m-1" style="width: 10rem;">
+    <div v-if="currentconditions!=null" class="card m-1" style="width: 13rem;">
       <img :src="`src/assets/icons/${currentconditions.data[0].WeatherIcon}-s.png`" class="card-img-top mt-1" alt="...">
       <div class="card-body">
         <h5 class="card-title">{{ currentconditions.data[0].WeatherText }}</h5>
@@ -64,7 +80,7 @@
     <!-- 12 hours forcast weather -->
     <p class="fs-3 text-capitalize fw-bold">hourly</p>
     <div class="w-100 overflow-scroll" style="white-space: nowrap;" v-if="forecastsHourly!=null">
-      <div class="card m-1 d-inline-block" style="width: 10rem;" v-for="(forecast,index) in forecastsHourly" :key="index">
+      <div class="card m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsHourly" :key="index">
         <div class="card-header">{{ formateTime(forecast.DateTime) }}</div>
         <img :src="`src/assets/icons/${forecast.WeatherIcon}-s.png`" class="card-img-top mt-1" alt="...">
         <div class="card-body">
@@ -75,13 +91,33 @@
     </div>
     <!-- 5days forcast weather -->
     <p class="fs-3 text-capitalize fw-bold mt-1">daily</p>
-    <div class="w-100 overflow-scroll" style="white-space: nowrap;">
-      <div class="card m-1 d-lg-inline-block" style="width: 10rem;">
-        <div class="card-header">Sunday</div>
-        <img src="./assets/icons/1-s.png" class="card-img-top mt-1" alt="...">
+    <ul class="nav nav-pills card-header-pills">
+      <li class="nav-item">
+        <button class="nav-link" v-on:click="dayNight()" :class="{active:dayIsActive}">Days</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" v-on:click="dayNight()" :class="{active:nightIsActive}">Nights</button>
+      </li>
+    </ul>
+
+    <div class="w-100 overflow-scroll m-1" style="white-space: nowrap;" v-if="dayIsActive">
+      <div class="card m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsDaily" :key="index">
+        <div class="card-header">{{ formateDate(forecast.Date) }}</div>
+        <img :src="`src/assets/icons/${forecast.Day.Icon}-s.png`" class="card-img-top mt-1" alt="...">
         <div class="card-body">
-          <h5 class="card-title">Cloudy</h5>
-          <p class="fs-4">17 C</p>
+          <h5 class="card-title">{{forecast.Day.IconPhrase}}</h5>
+          <p class="fs-4">{{ forecast.Temperature.Minimum.Value +" "+ forecast.Temperature.Minimum.Unit + " _ " +forecast.Temperature.Maximum.Value +" "+ forecast.Temperature.Maximum.Unit }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-100 overflow-scroll m-1" style="white-space: nowrap;" v-if="nightIsActive">
+      <div class="card bg-dark m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsDaily" :key="index">
+        <div class="card-header text-white">{{ formateDate(forecast.Date) }}</div>
+        <img :src="`src/assets/icons/${forecast.Night.Icon}-s.png`" class="card-img-top mt-1" alt="...">
+        <div class="card-body text-white">
+          <h5 class="card-title">{{forecast.Night.IconPhrase}}</h5>
+          <p class="fs-4">{{ forecast.Temperature.Minimum.Value +" "+ forecast.Temperature.Minimum.Unit + " _ " +forecast.Temperature.Maximum.Value +" "+ forecast.Temperature.Maximum.Unit }}</p>
         </div>
       </div>
     </div>
