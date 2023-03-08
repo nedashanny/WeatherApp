@@ -9,6 +9,9 @@
         forecastsDaily:null,
         dayIsActive:true,
         nightIsActive:false,
+        city:'',
+        locations:null,
+        showLocations:true,
       }
     },
     beforeMount(){
@@ -22,18 +25,7 @@
       // find user location
       axios.get('http://dataservice.accuweather.com/locations/v1/cities/ipaddress?q='+this.ipAdress+'&apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
           .then(response=>{
-                    axios.get('http://dataservice.accuweather.com/currentconditions/v1/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
-                        .then(response=>{
-                          this.currentconditions=response
-                        })
-                    axios.get('http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
-                        .then(response=>{
-                          this.forecastsHourly=response.data
-                        })    
-                    axios.get('http://dataservice.accuweather.com/forecasts/v1/daily/5day/'+response.data.Key+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
-                        .then(response=>{
-                          this.forecastsDaily=response.data.DailyForecasts
-                        })       
+                 this.displayWeather(response.data.Key)        
           })
     },
     methods:{
@@ -50,7 +42,29 @@
       dayNight(){
         this.dayIsActive = !this.dayIsActive
         this.nightIsActive = !this.nightIsActive
-      }
+      },
+      displayWeather(location){
+        axios.get('http://dataservice.accuweather.com/currentconditions/v1/'+location+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+              .then(response=>{
+                  this.currentconditions=response
+              })
+        axios.get('http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/'+location+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+              .then(response=>{
+                  this.forecastsHourly=response.data
+              })    
+        axios.get('http://dataservice.accuweather.com/forecasts/v1/daily/5day/'+location+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+              .then(response=>{
+                  this.forecastsDaily=response.data.DailyForecasts
+              })  
+        this.showLocations=true      
+      },
+      search(){
+        axios.get('https://dataservice.accuweather.com/locations/v1/cities/search?q='+this.city+'&apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
+                .then( (response)=> {
+                  this.locations=response.data
+                })
+        this.showLocations=false       
+      },
       
       }
     }
@@ -60,13 +74,17 @@
   <nav class="navbar bg-body-tertiary">
     <div class="container">
       <a class="navbar-brand">Accu</a>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Location" aria-label="Location">
+      <form @submit.prevent="search()" class="d-flex" role="search">
+        <input v-model="city" class="form-control me-2" type="search" placeholder="Location" aria-label="Location">
         <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
     </div>
   </nav>
   <div class="container">
+    <!-- locations -->
+    <ul class="list-group mt-1" :class="{'d-none':showLocations}">
+      <li class="list-group-item" v-for="location in locations" :key="location" @click="displayWeather(location.Key)">{{ location.Country.LocalizedName+','+location.LocalizedName }}</li>
+    </ul>
     <!-- current weather -->
     <p class="fs-3 text-capitalize fw-bold">current</p>
     <div v-if="currentconditions!=null" class="card m-1" style="width: 13rem;">
