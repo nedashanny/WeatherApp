@@ -1,5 +1,8 @@
 <script>
   import axios from "axios";
+  import HourlyWeather from "./components/HourlyWeather.vue";
+  import DailyWeather from "./components/DailyWeather.vue";
+  import CurrentWeather from "./components/CurrentWeather.vue";
   export default{
     data(){
       return{
@@ -7,12 +10,13 @@
         currentconditions:null,
         forecastsHourly:null,
         forecastsDaily:null,
-        dayIsActive:true,
-        nightIsActive:false,
         city:'',
         locations:null,
         showLocations:true,
       }
+    },
+    components:{
+      HourlyWeather,DailyWeather,CurrentWeather
     },
     beforeMount(){
       // get user ip
@@ -29,20 +33,6 @@
           })
     },
     methods:{
-      formateTime(utcString){
-        var date=new Date(utcString);
-        return date.toLocaleTimeString()
-      },
-
-      formateDate(utcString){
-        var date=new Date(utcString);
-        return date.toDateString()
-      },
-
-      dayNight(){
-        this.dayIsActive = !this.dayIsActive
-        this.nightIsActive = !this.nightIsActive
-      },
       displayWeather(location){
         axios.get('http://dataservice.accuweather.com/currentconditions/v1/'+location+'?apikey=gnT2YKAwjOYiOGoR2cG0lLMXVyW2JUsA')
               .then(response=>{
@@ -86,58 +76,16 @@
       <li class="list-group-item" v-for="location in locations" :key="location" @click="displayWeather(location.Key)">{{ location.Country.LocalizedName+','+location.LocalizedName }}</li>
     </ul>
     <!-- current weather -->
-    <p class="fs-3 text-capitalize fw-bold">current</p>
-    <div v-if="currentconditions!=null" class="card m-1" :class="{'bg-dark':!currentconditions.data[0].IsDayTime}" style="width: 13rem;">
-      <img :src="`src/assets/icons/${currentconditions.data[0].WeatherIcon}-s.png`" class="card-img-top mt-1" alt="...">
-      <div class="card-body" :class="{'text-white':!currentconditions.data[0].IsDayTime}">
-        <h5 class="card-title">{{ currentconditions.data[0].WeatherText }}</h5>
-        <p class="fs-4">{{ currentconditions.data[0].Temperature.Metric.Value + " "+  currentconditions.data[0].Temperature.Metric.Unit}}</p>
-        <a :href="currentconditions.data[0].Link" class="btn btn-primary text-capitalize">view website</a>
-      </div>
+    <div v-if="currentconditions!=null">
+      <CurrentWeather title="current" :weather="currentconditions.data"/>
     </div>
     <!-- 12 hours forcast weather -->
-    <p class="fs-3 text-capitalize fw-bold">hourly</p>
-    <div class="w-100 overflow-scroll" style="white-space: nowrap;" v-if="forecastsHourly!=null">
-      <div class="card m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsHourly" :key="index" :class="{'bg-dark':!forecast.IsDaylight}">
-        <div class="card-header" :class="{'text-white':!forecast.IsDaylight}">{{ formateTime(forecast.DateTime) }}</div>
-        <img :src="`src/assets/icons/${forecast.WeatherIcon}-s.png`" class="card-img-top mt-1" alt="...">
-        <div class="card-body" :class="{'text-white':!forecast.IsDaylight}">
-          <h5 class="card-title">{{forecast.IconPhrase}}</h5>
-          <p class="fs-4">{{ forecast.Temperature.Value + " " + forecast.Temperature.Unit}}</p>
-        </div>
-      </div>
+    <div v-if="forecastsHourly!=null">
+        <HourlyWeather title="hourly" :forecasts="forecastsHourly"/>    
     </div>
     <!-- 5days forcast weather -->
-    <p class="fs-3 text-capitalize fw-bold mt-1">daily</p>
-    <ul class="nav nav-pills card-header-pills">
-      <li class="nav-item">
-        <button class="nav-link" v-on:click="dayNight()" :class="{active:dayIsActive}">Days</button>
-      </li>
-      <li class="nav-item">
-        <button class="nav-link" v-on:click="dayNight()" :class="{active:nightIsActive}">Nights</button>
-      </li>
-    </ul>
-
-    <div class="w-100 overflow-scroll m-1" style="white-space: nowrap;" v-if="dayIsActive">
-      <div class="card m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsDaily" :key="index">
-        <div class="card-header">{{ formateDate(forecast.Date) }}</div>
-        <img :src="`src/assets/icons/${forecast.Day.Icon}-s.png`" class="card-img-top mt-1" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">{{forecast.Day.IconPhrase}}</h5>
-          <p class="fs-4">{{ forecast.Temperature.Minimum.Value +" "+ forecast.Temperature.Minimum.Unit + " _ " +forecast.Temperature.Maximum.Value +" "+ forecast.Temperature.Maximum.Unit }}</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="w-100 overflow-scroll m-1" style="white-space: nowrap;" v-if="nightIsActive">
-      <div class="card bg-dark m-1 d-inline-block" style="width: 13rem;" v-for="(forecast,index) in forecastsDaily" :key="index">
-        <div class="card-header text-white">{{ formateDate(forecast.Date) }}</div>
-        <img :src="`src/assets/icons/${forecast.Night.Icon}-s.png`" class="card-img-top mt-1" alt="...">
-        <div class="card-body text-white">
-          <h5 class="card-title">{{forecast.Night.IconPhrase}}</h5>
-          <p class="fs-4">{{ forecast.Temperature.Minimum.Value +" "+ forecast.Temperature.Minimum.Unit + " _ " +forecast.Temperature.Maximum.Value +" "+ forecast.Temperature.Maximum.Unit }}</p>
-        </div>
-      </div>
+    <div v-if="forecastsDaily!=null">
+        <DailyWeather title="daily" :forecasts="forecastsDaily"/>
     </div>
   </div>
   
