@@ -48,6 +48,7 @@
       </div>
     </div>
 
+    <p class="fs-2 text-capitalize fw-bold mt-2">Hourly Temperature Chart</p>
     <table class="charts-css line" id="my-chart" style="width: 100%; height: 10rem;">
       <tbody v-html="chart"></tbody>
     </table>
