@@ -19,3 +19,9 @@
       </div>
     </div>
 </template>
+
+<style scoped>
+.overflow-scroll::-webkit-scrollbar{
+display: none;
+}
+</style>

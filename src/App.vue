@@ -75,10 +75,60 @@
     <ul class="list-group mt-1" :class="{'d-none':showLocations}">
       <li class="list-group-item" v-for="location in locations" :key="location" @click="displayWeather(location.Key)">{{ location.Country.LocalizedName+','+location.LocalizedName }}</li>
     </ul>
+    <!-- Carousel -->
+    <div id="carouselExampleFade" class="carousel slide carousel-fade">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img src="./assets/images/chi-liu-l-rtCtc_4c0-unsplash.jpg" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+              <!-- current weather -->
+              <div v-if="currentconditions!=null">
+                <CurrentWeather title="current" :weather="currentconditions.data"/>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <img src="./assets/images/johannes-plenio-RwHv7LgeC7s-unsplash.jpg" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+              <!-- current weather -->
+              <div v-if="currentconditions!=null">
+                <CurrentWeather title="current" :weather="currentconditions.data"/>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <img src="./assets/images/sean-oulashin-KMn4VEeEPR8-unsplash.jpg" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+              <!-- current weather -->
+              <div v-if="currentconditions!=null">
+                <CurrentWeather title="current" :weather="currentconditions.data"/>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <img src="./assets/images/timothy-eberly-LHm2nLdtC9g-unsplash.jpg" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+              <!-- current weather -->
+              <div v-if="currentconditions!=null">
+                <CurrentWeather title="current" :weather="currentconditions.data"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
     <!-- current weather -->
-    <div v-if="currentconditions!=null">
-      <CurrentWeather title="current" :weather="currentconditions.data"/>
+    <div class="d-md-none d-block" v-if="currentconditions!=null">
+        <CurrentWeather title="current" :weather="currentconditions.data"/>
     </div>
+            
     <!-- 12 hours forcast weather -->
     <div v-if="forecastsHourly!=null">
         <HourlyWeather title="hourly" :forecasts="forecastsHourly"/>    
