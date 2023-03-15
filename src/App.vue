@@ -76,7 +76,7 @@
       <li class="list-group-item" v-for="location in locations" :key="location" @click="displayWeather(location.Key)">{{ location.Country.LocalizedName+','+location.LocalizedName }}</li>
     </ul>
     <!-- Carousel -->
-    <div id="carouselExampleFade" class="carousel slide carousel-fade">
+    <div id="carouselExampleFade" class="carousel slide carousel-fade mt-2">
         <div class="carousel-inner">
           <div class="carousel-item active">
             <img src="./assets/images/chi-liu-l-rtCtc_4c0-unsplash.jpg" class="d-block w-100" alt="...">
